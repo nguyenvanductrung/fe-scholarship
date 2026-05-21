@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cardano Scholarship DApp - Frontend
 
-## Getting Started
+Đây là giao diện người dùng (Frontend DApp) được xây dựng bằng **Next.js** (App Router), cho phép người dùng tương tác trực tiếp với Smart Contract học bổng Cardano.
 
-First, run the development server:
+## 🚀 Tính năng nổi bật
+- **Kết nối ví Cardano**: Tích hợp Lucid / Cardano-multiplatform-lib hoặc thư viện ví cip-30 để kết nối ví trình duyệt (Nami, Lace, Eternl, Vespr, v.v.).
+- **Giao diện Admin**: Cấp học bổng mới, duyệt danh sách học bổng đã đủ điều kiện GPA.
+- **Giao diện Sinh viên**: Xem trạng thái học bổng của mình và thực hiện rút học bổng (Claim) bằng chữ ký cá nhân trực tiếp trên trình duyệt.
+
+---
+
+## 🛠️ Hướng dẫn cài đặt & Khởi chạy
+
+### 1. Cài đặt các phần phụ thuộc
+Di chuyển vào thư mục frontend và cài đặt node packages:
+
+```bash
+cd frontend
+npm install
+```
+
+### 2. Cấu hình biến môi trường
+Tạo file `.env.local` trong thư mục `/frontend` với nội dung mẫu như sau:
+
+```env
+# URL trỏ tới API Backend FastAPI
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
+
+# Mạng lưới Cardano đang chạy (preview hoặc preprod)
+NEXT_PUBLIC_NETWORK=preview
+
+# Địa chỉ ví Admin (Dùng để xác thực quyền quản trị trên UI)
+NEXT_PUBLIC_ADMIN_ADDRESS=addr_test1qrkv7h0zup0kl60uqlqh2gx7p59aan6865cc9xquefsf272736ynmuwqju56ws8m5cz3h3gj6aq9z0uyqjd56s5zeynqxfwyzf
+```
+
+### 3. Chạy ứng dụng ở chế độ Development
+Khởi động development server cục bộ:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Mở trình duyệt truy cập: [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 4. Build sản phẩm production
+Để tối ưu hoá và build ứng dụng cho môi trường production:
+```bash
+npm run build
+npm run start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 💡 Lưu ý khi test kết nối ví
+1. Đảm bảo ví trình duyệt của bạn (Nami, Lace, v.v.) đang được chuyển sang mạng **Preview** (phải trùng khớp với cấu hình `NEXT_PUBLIC_NETWORK`).
+2. Ví test phải có một lượng **tADA** nhất định để làm phí mạng lưới khi tương tác hoặc ký giao dịch. Xin tADA miễn phí tại [Cardano Faucet](https://docs.cardano.org/cardano-testnets/tools/faucet/).

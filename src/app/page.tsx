@@ -1,65 +1,154 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useQuery } from "@tanstack/react-query";
+import { getScholarships, getStats } from "@/lib/api";
+import { useWalletStore } from "@/stores/use-wallet-store";
+import { shortenAddress, lovelaceToAda } from "@/lib/utils";
+import {
+  GraduationCap, Coins, CheckCircle, Clock, TrendingUp, Shield, Wallet
+} from "lucide-react";
+import { ScholarshipStatus, STATUS_LABELS, STATUS_COLORS } from "@/types";
+
+function StatCard({ label, value, icon: Icon, color }: {
+  label: string; value: string | number; icon: React.ElementType; color: string;
+}) {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="card-glass p-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-wider text-gray-500">{label}</p>
+          <p className="mt-1 text-2xl font-bold text-white">{value}</p>
+        </div>
+        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${color}`}>
+          <Icon size={20} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function HomePage() {
+  const { isConnected, walletAddress, isAdmin } = useWalletStore();
+
+  const { data: stats } = useQuery({
+    queryKey: ["stats"],
+    queryFn: getStats,
+    refetchInterval: 60_000,
+  });
+
+  const { data: recentScholarships } = useQuery({
+    queryKey: ["scholarships", 1, 5],
+    queryFn: () => getScholarships(1, 5),
+  });
+
+  return (
+    <div className="space-y-8">
+      {/* Hero */}
+      <section className="relative overflow-hidden rounded-3xl border border-violet-500/20 bg-gradient-to-br from-violet-950/60 via-purple-950/40 to-gray-950 p-8 md:p-12">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(139,92,246,0.15),transparent_60%)]" />
+        <div className="relative">
+          <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1 text-xs text-violet-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse" />
+            Cardano Preprod Testnet
+          </div>
+          <h1 className="mt-4 text-3xl font-bold text-white md:text-5xl">
+            Scholarship Management <br />
+            <span className="text-gradient">On-Chain</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-3 max-w-xl text-gray-400">
+            Quản lý học bổng minh bạch trên blockchain Cardano. Admin duyệt học bổng, sinh viên nhận học bổng qua ví Eternl/Nami.
           </p>
+          {!isConnected && (
+            <p className="mt-4 text-sm text-violet-400">
+              ↑ Kết nối ví để bắt đầu
+            </p>
+          )}
+          {isConnected && isAdmin && (
+            <div className="mt-4 flex items-center gap-2 text-sm text-amber-400">
+              <Shield size={14} />
+              Admin mode · {shortenAddress(walletAddress!)}
+            </div>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
+      </section>
+
+      {/* Stats */}
+      <section>
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500">Overview</h2>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <StatCard
+            label="Total Funded"
+            value={`₳ ${stats ? lovelaceToAda(stats.total_funded_lovelace) : "—"}`}
+            icon={Coins}
+            color="bg-violet-500/20 text-violet-400"
+          />
+          <StatCard
+            label="Pending"
+            value={stats?.total_pending ?? "—"}
+            icon={Clock}
+            color="bg-yellow-500/20 text-yellow-400"
+          />
+          <StatCard
+            label="Approved"
+            value={stats?.total_approved ?? "—"}
+            icon={CheckCircle}
+            color="bg-emerald-500/20 text-emerald-400"
+          />
+          <StatCard
+            label="Claimed"
+            value={stats?.total_claimed ?? "—"}
+            icon={TrendingUp}
+            color="bg-blue-500/20 text-blue-400"
+          />
+        </div>
+      </section>
+
+      {/* Recent Scholarships */}
+      <section>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">Recent Scholarships</h2>
+          <a href="/scholarships" className="text-xs text-violet-400 hover:text-violet-300 transition-colors">
+            View all →
           </a>
         </div>
-      </main>
+        <div className="card-glass overflow-hidden">
+          {!recentScholarships?.data?.length ? (
+            <div className="flex flex-col items-center justify-center py-16 text-gray-600">
+              <GraduationCap size={36} className="mb-3 opacity-30" />
+              <p>No scholarships yet</p>
+            </div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/5 text-xs uppercase tracking-wider text-gray-600">
+                  <th className="px-4 py-3 text-left">Student</th>
+                  <th className="px-4 py-3 text-left">Semester</th>
+                  <th className="px-4 py-3 text-right">Amount</th>
+                  <th className="px-4 py-3 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.03]">
+                {recentScholarships.data.map((s) => (
+                  <tr key={`${s.utxo_hash}#${s.utxo_index}`} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-4 py-3 font-mono text-xs text-gray-400">
+                      {shortenAddress(s.student_pkh)}
+                    </td>
+                    <td className="px-4 py-3 text-gray-300">{s.semester}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-white">
+                      ₳ {lovelaceToAda(s.scholarship_amount)}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${STATUS_COLORS[s.status as ScholarshipStatus]}`}>
+                        {STATUS_LABELS[s.status as ScholarshipStatus]}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
