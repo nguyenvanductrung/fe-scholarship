@@ -71,7 +71,7 @@ export function TimelineFeed() {
     );
   }
 
-  const txs = (data ?? []).slice(0, 10);
+  const txs: TxDetail[] = (data ?? []).slice(0, 10);
 
   return (
     <section className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6">
@@ -118,6 +118,9 @@ function TimelineItem({ tx }: { tx: TxDetail }) {
   const type = normalizeTxType(tx.tx_type);
   const meta = TX_META[type];
   const Icon = meta.icon;
+  const blockTime = tx.block_time
+    ? formatRelativeTime(tx.block_time)
+    : "Chua ro thoi gian";
 
   return (
     <li className="flex gap-3">
@@ -133,7 +136,7 @@ function TimelineItem({ tx }: { tx: TxDetail }) {
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="text-sm font-medium text-zinc-100">{meta.label}</span>
           <span className="text-xs text-zinc-500">
-            {formatRelativeTime(tx.block_time)}
+            {blockTime}
           </span>
         </div>
         <a

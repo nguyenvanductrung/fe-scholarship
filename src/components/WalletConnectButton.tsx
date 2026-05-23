@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useWalletStore } from "@/stores/use-wallet-store";
 import { BrowserWallet } from "@meshsdk/core";
-import { shortenAddress, lovelaceToAda, cn } from "@/lib/utils";
+import { shortenAddress, cn } from "@/lib/utils";
 import { Wallet, ChevronDown, AlertTriangle, LogOut, Copy, Check, Loader2 } from "lucide-react";
 
 // Known wallet icon fallbacks

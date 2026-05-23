@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { BrowserWallet, type Wallet } from "@meshsdk/core";
+import { BrowserWallet, type UTxO } from "@meshsdk/core";
 
 const ADMIN_ADDRESS = process.env.NEXT_PUBLIC_ADMIN_ADDRESS ?? "";
 const EXPECTED_NETWORK = process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? 1 : 0; // 0 = testnet, 1 = mainnet
@@ -20,7 +20,7 @@ interface WalletState {
   // Actions
   connect: (walletName: string) => Promise<void>;
   disconnect: () => void;
-  getUtxos: () => Promise<string[]>;
+  getUtxos: () => Promise<UTxO[]>;
   signTx: (txCbor: string, partialSign?: boolean) => Promise<string>;
   submitTx: (txCbor: string) => Promise<string>;
   refreshBalance: () => Promise<void>;
@@ -30,8 +30,13 @@ interface WalletState {
 let _wallet: BrowserWallet | null = null;
 
 export const useWalletStore = create<WalletState>()(
-  persist(
-    (set, get) => ({
+  persist<
+    WalletState,
+    [],
+    [],
+    Pick<WalletState, "walletName" | "walletAddress">
+  >(
+    (set) => ({
       walletAddress: null,
       walletName: null,
       balance: null,
@@ -114,10 +119,10 @@ export const useWalletStore = create<WalletState>()(
     }),
     {
       name: "cardano-wallet-store",
-      partialState: (state) => ({
+      partialize: (state) => ({
         walletName: state.walletName,
         walletAddress: state.walletAddress,
       }),
-    } as Parameters<typeof persist>[1]
+    }
   )
 );

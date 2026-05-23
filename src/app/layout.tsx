@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 import { WalletProvider } from "@/providers/wallet-provider";
 import { WalletConnectButton } from "@/components/wallet/wallet-connect-button";
 import { NetworkGuard } from "@/components/wallet/network-guard";
 import { GraduationCap } from "lucide-react";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "ScholarChain – Cardano Scholarship DApp",
@@ -16,7 +14,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} min-h-screen bg-gray-950 text-gray-100 antialiased`}>
+      <body className="min-h-screen bg-gray-950 font-sans text-gray-100 antialiased">
         <WalletProvider>
           {/* Network warning sits at the very top */}
           <NetworkGuard className="rounded-none border-x-0 border-t-0" />
@@ -39,9 +37,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
               {/* Nav links */}
               <nav className="hidden items-center gap-6 text-sm text-gray-400 md:flex">
-                <a href="/" className="transition-colors hover:text-white">Dashboard</a>
-                <a href="/student" className="transition-colors hover:text-white">My Scholarship</a>
-                <a href="/admin" className="transition-colors hover:text-white">Admin</a>
+                <Link href="/" className="transition-colors hover:text-white">Dashboard</Link>
+                <Link href="/student" className="transition-colors hover:text-white">My Scholarship</Link>
+                <Link href="/admin" className="transition-colors hover:text-white">Admin</Link>
               </nav>
 
               {/* Wallet button */}

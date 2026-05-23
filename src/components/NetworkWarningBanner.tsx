@@ -1,7 +1,6 @@
 "use client";
 
 import { useWalletStore } from "@/stores/use-wallet-store";
-import { cn } from "@/lib/utils";
 import { AlertTriangle, X } from "lucide-react";
 import { useState } from "react";
 

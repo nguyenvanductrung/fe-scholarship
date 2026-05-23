@@ -1,16 +1,16 @@
 import axios from "axios";
 import type {
-  ScholarshipInfo,
+  BuildApproveTxPayload,
+  BuildClaimTxPayload,
+  BuildFundTxPayload,
+  BuildRevokeTxPayload,
   PaginatedScholarships,
+  ScholarshipInfo,
+  StudentDashboardResponse,
   Stats,
+  TxDetail,
   TxResponse,
   UnsignedTxResponse,
-} from "@/types";
-import type {
-  BuildFundTxPayload,
-  BuildApproveTxPayload,
-  BuildRevokeTxPayload,
-  BuildClaimTxPayload,
 } from "@/types/api";
 
 const api = axios.create({
@@ -49,7 +49,7 @@ export const getStats = async (): Promise<Stats> => {
   return res.data;
 };
 
-export const getTransactions = async (txHash?: string) => {
+export const getTransactions = async (txHash?: string): Promise<TxDetail[]> => {
   const params = txHash ? { tx_hash: txHash } : {};
   const res = await api.get("/transactions", { params });
   return res.data;
@@ -103,7 +103,7 @@ export const adminRevoke = async (utxoRef: string, reason: string): Promise<TxRe
 
 // --- ALIASES used by existing hooks (use-dashboard-queries, use-student-dashboard) ---
 export const fetchStats = getStats;
-export const fetchTransactions = getTransactions;
+export const fetchTransactions = () => getTransactions();
 
 export const fetchScholarships = async ({
   page = 1,
@@ -123,7 +123,9 @@ export const fetchScholarships = async ({
   return getScholarships(page, size);
 };
 
-export const fetchStudentDashboard = async (walletAddress: string) => {
+export const fetchStudentDashboard = async (
+  walletAddress: string,
+): Promise<StudentDashboardResponse> => {
   const scholarships = await getMyScholarship(walletAddress);
   return { scholarships, profile: null };
 };

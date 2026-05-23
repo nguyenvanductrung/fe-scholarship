@@ -2,6 +2,20 @@ import type { MeshCardanoBrowserWallet } from "@meshsdk/react";
 import { create } from "zustand";
 
 const adminAddress = process.env.NEXT_PUBLIC_ADMIN_ADDRESS ?? "";
+const expectedNetworkId = process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? 1 : 0;
+
+function lovelaceToAdaBalance(lovelace: string | null): string | null {
+  if (!lovelace) {
+    return null;
+  }
+
+  const amount = Number(lovelace);
+  if (!Number.isFinite(amount)) {
+    return null;
+  }
+
+  return (amount / 1_000_000).toFixed(2);
+}
 
 interface MeshDelegates {
   connect: (walletName: string) => Promise<void>;
@@ -14,7 +28,10 @@ interface WalletState {
   walletName: string | null;
   isAdmin: boolean;
   adaBalance: string | null;
+  balance: string | null;
   networkId: number | undefined;
+  networkWarning: boolean;
+  error: string | null;
   isConnected: boolean;
   isConnecting: boolean;
 
@@ -42,7 +59,10 @@ export const useWalletStore = create<WalletState>((set) => ({
   walletName: null,
   isAdmin: false,
   adaBalance: null,
+  balance: null,
   networkId: undefined,
+  networkWarning: false,
+  error: null,
   isConnected: false,
   isConnecting: false,
 
@@ -55,10 +75,17 @@ export const useWalletStore = create<WalletState>((set) => ({
       !!adminAddress &&
       !!data.walletAddress &&
       data.walletAddress === adminAddress;
+    const networkWarning =
+      data.isConnected &&
+      typeof data.networkId === "number" &&
+      data.networkId !== expectedNetworkId;
 
     set({
       ...data,
+      balance: lovelaceToAdaBalance(data.adaBalance),
       isAdmin,
+      networkWarning,
+      error: null,
     });
   },
 
@@ -66,9 +93,14 @@ export const useWalletStore = create<WalletState>((set) => ({
     if (!meshDelegates) {
       throw new Error("Wallet provider not initialized");
     }
-    set({ isConnecting: true });
+    set({ isConnecting: true, error: null });
     try {
       await meshDelegates.connect(walletName);
+    } catch (err) {
+      const error =
+        err instanceof Error ? err.message : "Khong the ket noi vi";
+      set({ error });
+      throw err;
     } finally {
       set({ isConnecting: false });
     }
@@ -81,7 +113,10 @@ export const useWalletStore = create<WalletState>((set) => ({
       walletName: null,
       isAdmin: false,
       adaBalance: null,
+      balance: null,
       networkId: undefined,
+      networkWarning: false,
+      error: null,
       isConnected: false,
       isConnecting: false,
     });

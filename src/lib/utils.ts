@@ -11,11 +11,12 @@ export function shortenAddress(address: string, chars = 8): string {
 }
 
 export function lovelaceToAda(
-  lovelace: number,
+  lovelace: number | string | null | undefined,
   options?: { prefix?: boolean; decimals?: number }
 ): string {
   const decimals = options?.decimals ?? 2;
-  const amount = (lovelace / 1_000_000).toFixed(decimals);
+  const lovelaceValue = Number(lovelace ?? 0);
+  const amount = (lovelaceValue / 1_000_000).toFixed(decimals);
   return options?.prefix ? `₳ ${amount}` : amount;
 }
 
